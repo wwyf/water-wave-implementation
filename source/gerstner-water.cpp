@@ -192,7 +192,7 @@ static void infoLog(GLuint object, PFNGLGETSHADERIVPROC glGet__iv, PFNGLGETSHADE
 void *readShader(const char *filename, GLint *length)
 {
 	FILE *f;
-	fopen_s(&f, filename, "r");
+	f = fopen(filename, "r");
 	void *buffer;
 
 	if (!f) {

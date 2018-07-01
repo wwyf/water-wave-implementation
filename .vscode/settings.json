@@ -38,5 +38,8 @@
             // "xelatex",
           ]
         }
-      ]
-}
+      ],
+      "files.associations": {
+        "cmath": "cpp"
+      }
+    }
