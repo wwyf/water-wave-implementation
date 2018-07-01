@@ -12,6 +12,7 @@
 #include <math.h>
 #include <string>
 #include "util.h"
+#include "packet.h"
 
 #define SCREEN_WIDTH	800
 #define SCREEN_HEIGHT	600
@@ -37,10 +38,12 @@ std::string norm_texture = "../resource/water-texture-2-normal.tga";
 
 int frame_count = 0;
 
+/* 水面坐标缓冲区 */
 static GLfloat pt_strip[STRIP_COUNT*STRIP_LENGTH*3] = {0};
 static GLfloat pt_normal[STRIP_COUNT*STRIP_LENGTH*3] = {0};
 static GLfloat vertex_data[DATA_LENGTH*3] = {0};
 static GLfloat normal_data[DATA_LENGTH*3] = {0};
+
 
 //wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
 static const GLfloat wave_para[6][6] = {
@@ -120,6 +123,9 @@ static float gerstnerZ(float, float, float, const GLfloat *);
 static int normalizeF(float *, float *, int);
 static void calcuWave(void);
 static void initGL(void);
+void processInput(GLFWwindow *window);
+
+PacketManager my_packet_pool;
 
 int main(int argc, char* argv[])
 {
@@ -161,6 +167,9 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		calcuWave();
+		// input
+        processInput(window);
+		my_packet_pool.update_data();
 
 		glUniform1f(glGetUniformLocation(names.program, "time"), values.time);
 		values_2.time = values.time;
@@ -400,32 +409,35 @@ static void calcuWave(void)
 		for(int j=0; j<STRIP_LENGTH; j++)
 		{
 			wave = 0.0;
-				int w = 0;
-				d = pow(pt_strip[index] - values_2.wave_start[w*2], 2) + pow(pt_strip[index+1] - values_2.wave_start[w*2+1], 2);
-				d = sqrt(d);
+				// int w = 0;
+				// d = pow(pt_strip[index] - values_2.wave_start[w*2], 2) + pow(pt_strip[index+1] - values_2.wave_start[w*2+1], 2);
+				// d = sqrt(d);
 
-				int range_wave = 1;
-				if (d > range_wave){
-					wave += values_2.wave_height[w] + 0;
-					
-				}
-				else {
-					wave += values_2.wave_height[w] + gerstnerZ(values_2.wave_length[w], values_2.wave_height[w], d - values_2.wave_speed[w] * values_2.time, gerstner_pt_a) * (range_wave-d)/(range_wave);
-				}
+				// int range_wave = 1;
+				// if (d > range_wave){
+				// 	wave += values_2.wave_height[w] + 0;
+				// }
+				// else {
+				// 	wave += values_2.wave_height[w] + gerstnerZ(values_2.wave_length[w], values_2.wave_height[w], d - values_2.wave_speed[w] * values_2.time, gerstner_pt_a) * (range_wave-d)/(range_wave);
+				// }
 
 				// if(gerstner_sort[w] == 1){
 					// wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
 				// }else{
 					// wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
 				// }
-			// for(int w=0; w<WAVE_COUNT; w++){
-			// 	d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
-			// 	if(gerstner_sort[w] == 1){
-			// 		wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
-			// 	}else{
-			// 		wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
-			// 	}
-			// }
+			for(int w=0; w<WAVE_COUNT; w++){
+				d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
+				if(gerstner_sort[w] == 1){
+					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
+				}else{
+					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				}
+			}
+			printf("wave:%f\n" ,wave);
+			float www = my_packet_pool.get_x_y_height(i, j);
+			// printf("www:%f\n" ,www);
+			wave += www;
 			pt_strip[index+2] = START_Z + wave*HEIGHT_SCALE;
 			index += 3;
 		}
@@ -540,3 +552,14 @@ static void initGL(void)
 	glUniformMatrix3fv(glGetUniformLocation(names.program, "normalMat"), 1, GL_FALSE, glm::value_ptr(NormalMat));
 }
 
+void processInput(GLFWwindow *window){
+
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
+        for (int i = 0; i < 100000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
+				my_packet_pool.add_packet(20,30,50);
+            }
+        }
+    }
+}
