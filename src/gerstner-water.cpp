@@ -52,6 +52,16 @@ static const GLfloat wave_para[6][6] = {
 	{	0.12,	0.003,	0.97,	0.14,	0.0,	0.0	}
 };
 
+//wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
+static const GLfloat wave_para2[6][6] = {
+	{	0.4,	0.1,	0.9,	0.03,	0.0,	0.0	},
+	{	1.3,	0.1,	1.14,	0.09,	0.0,	0.0	},
+	{	0.2,	0.01,	0.8,	0.08,	0.0,	0.0	},
+	{	0.18,	0.008,	1.05,	0.1,	0.0,	0.0	},
+	{	0.23,	0.005,	1.15,	0.09,	0.0,	0.0	},
+	{	0.12,	0.003,	0.97,	0.14,	0.0,	0.0	}
+};
+
 static const GLfloat gerstner_pt_a[22] = {
 	0.0,0.0, 41.8,1.4, 77.5,5.2, 107.6,10.9,
 	132.4,17.7, 152.3,25.0, 167.9,32.4, 179.8,39.2,
@@ -89,6 +99,16 @@ static struct {
 		wave_speed[WAVE_COUNT],
 		wave_start[WAVE_COUNT*2];
 } values;
+
+/* wave that power by touch */
+static struct {
+	GLfloat time;
+	GLfloat wave_length[WAVE_COUNT],
+		wave_height[WAVE_COUNT],
+		wave_dir[WAVE_COUNT],
+		wave_speed[WAVE_COUNT],
+		wave_start[WAVE_COUNT*2];
+} values_2;
 
 static void infoLog(GLuint, PFNGLGETSHADERIVPROC, PFNGLGETSHADERINFOLOGPROC);
 void *readShader(const char *, GLint *);
@@ -143,7 +163,7 @@ int main(int argc, char* argv[])
 		calcuWave();
 
 		glUniform1f(glGetUniformLocation(names.program, "time"), values.time);
-
+		values_2.time = values.time;
 		glBindBuffer(GL_ARRAY_BUFFER, names.vertex_buffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
 		glVertexAttribPointer(names.attributes.position, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, (void*)0);
@@ -292,6 +312,18 @@ static void initWave(void)
 		values.wave_start[w*2+1] = wave_para[w][5];
 	}
 
+	// Initialize values_2
+	values_2.time = 0.0;
+	for(int w=0; w<WAVE_COUNT; w++)
+	{
+		values_2.wave_length[w] = wave_para2[w][0];
+		values_2.wave_height[w] = wave_para2[w][1];
+		values_2.wave_dir[w] = wave_para2[w][2];
+		values_2.wave_speed[w] = wave_para2[w][3];
+		values_2.wave_start[w*2] = wave_para2[w][4];
+		values_2.wave_start[w*2+1] = wave_para2[w][5];
+	}
+
 	//Initialize pt_strip[]
 	int index=0;
 	for(int i=0; i<STRIP_COUNT; i++)
@@ -368,14 +400,32 @@ static void calcuWave(void)
 		for(int j=0; j<STRIP_LENGTH; j++)
 		{
 			wave = 0.0;
-			for(int w=0; w<WAVE_COUNT; w++){
-				d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
-				if(gerstner_sort[w] == 1){
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
-				}else{
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				int w = 0;
+				d = pow(pt_strip[index] - values_2.wave_start[w*2], 2) + pow(pt_strip[index+1] - values_2.wave_start[w*2+1], 2);
+				d = sqrt(d);
+
+				int range_wave = 1;
+				if (d > range_wave){
+					wave += values_2.wave_height[w] + 0;
+					
 				}
-			}
+				else {
+					wave += values_2.wave_height[w] + gerstnerZ(values_2.wave_length[w], values_2.wave_height[w], d - values_2.wave_speed[w] * values_2.time, gerstner_pt_a) * (range_wave-d)/(range_wave);
+				}
+
+				// if(gerstner_sort[w] == 1){
+					// wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
+				// }else{
+					// wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				// }
+			// for(int w=0; w<WAVE_COUNT; w++){
+			// 	d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
+			// 	if(gerstner_sort[w] == 1){
+			// 		wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
+			// 	}else{
+			// 		wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+			// 	}
+			// }
 			pt_strip[index+2] = START_Z + wave*HEIGHT_SCALE;
 			index += 3;
 		}
