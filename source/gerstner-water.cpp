@@ -30,10 +30,10 @@
 #define STRIP_LENGTH	50
 #define DATA_LENGTH		STRIP_LENGTH*2*(STRIP_COUNT-1)
 
-std::string fs_filename = "gerstner-water-fs.glsl";
-std::string vs_filename = "gerstner-water-vs.glsl";
-std::string diff_texture = "water-texture-2.tga";
-std::string norm_texture = "water-texture-2-normal.tga";
+std::string fs_filename = "../resource/gerstner-water-fs.glsl";
+std::string vs_filename = "../resource/gerstner-water-vs.glsl";
+std::string diff_texture = "../resource/water-texture-2.tga";
+std::string norm_texture = "../resource/water-texture-2-normal.tga";
 
 int frame_count = 0;
 
