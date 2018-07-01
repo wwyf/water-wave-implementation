@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -32,8 +32,8 @@
 
 std::string fs_filename = "gerstner-water-fs.glsl";
 std::string vs_filename = "gerstner-water-vs.glsl";
-std::string diff_texture = "water-texture-2.tga";
-std::string norm_texture = "water-texture-2-normal.tga";
+std::string diff_texture = "../resource/water-texture-2.tga";
+std::string norm_texture = "../resource/water-texture-2-normal.tga";
 
 int frame_count = 0;
 
@@ -192,7 +192,7 @@ static void infoLog(GLuint object, PFNGLGETSHADERIVPROC glGet__iv, PFNGLGETSHADE
 void *readShader(const char *filename, GLint *length)
 {
 	FILE *f;
-	fopen_s(&f, filename, "r");
+	f = fopen(filename, "r");
 	void *buffer;
 
 	if (!f) {
