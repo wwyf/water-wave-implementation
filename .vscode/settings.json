@@ -32,8 +32,8 @@
         {
           "name": "toolchain",
           "tools": [
-            "pdflatex"
-            // "xelatex",
+            // "pdflatex"
+            "xelatex",
             // "bibtex",
             // "xelatex",
           ]
