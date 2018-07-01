@@ -1,0 +1,121 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template Beamer Sugestivo para Projetos no Senac
+% by ezefranca.com
+% Based on MIT Beamer Template
+% As cores laranja e azul seguem o padrao proposto no manual de uso da identidade visual senac
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%\documentclass{beamer} %voce pode usar este modelo tambem
+\documentclass[handout,t]{beamer}
+\usepackage{graphicx,url}
+\usepackage[english]{babel}   
+\usepackage{ctex}
+\usepackage[utf8]{inputenc}
+\batchmode
+% \usepackage{pgfpages}
+% \pgfpagesuselayout{4 on 1}[letterpaper,landscape,border shrink=5mm]
+\usepackage{amsmath,amssymb,enumerate,epsfig,bbm,calc,color,ifthen,capt-of}
+\usetheme{Berlin}
+\usecolortheme{sustech}
+
+%-------------------------Titulo/Autores/Orientador------------------------------------------------
+% \title[LogiKid - Proposta de um jogo educativo para o ensino de portas lógicas]{Centro Universitário Senac\\Bacharelado em Ciência da Computação\\LogiKid - Proposta de um jogo educativo para o ensino de portas lógicas}
+\title[test]{test2}
+\date{\today}
+% \date{}
+\author[test1]{test33}
+% \author[Projeto Integrador II - Bacharelado em Ciência da Computação]{Alexandre Savelli Bencz\\ Ezequiel França Santos\\ Gabriel Fontenelle\\ Tales Carlos de Pádua\\}
+\institute{School of Data and Computer Science(SYSU)}
+
+
+
+
+%-------------------------Logo na parte de baixo do slide------------------------------------------
+\pgfdeclareimage[height=0.7cm]{sustech-logo}{sustech-logo.pdf}
+\logo{\pgfuseimage{sustech-logo}\hspace*{0.5cm}}
+
+%-------------------------Este código faz o menuzinho bacana na parte superior do slide------------
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+\beamerdefaultoverlayspecification{<+->}
+% -----------------------------------------------------------------------------
+\begin{document}
+% -----------------------------------------------------------------------------
+
+%---Gerador de Sumário---------------------------------------------------------
+\frame{\titlepage}
+\section[]{}
+\begin{frame}{test}
+  \tableofcontents
+\end{frame}
+%---Fim do Sumário------------------------------------------------------------
+
+
+% % -----------------------------------------------------------------------------
+% \section{Introducão}
+% \begin{frame}{Introdução}
+% %introducao
+% A Introdução vai aqui
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \section{Referencial Teórico}
+% \begin{frame}{Referencial Teórico}
+% %referencial teorico, estado da arte, etc
+% Referencial Teórico ou estado da arte.  
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \section{Metodologia}
+% \begin{frame}{Metodologia}
+% Metodologia minuciosamente aqui.
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \section{Considerações e Resultados}
+% \begin{frame}{Considerações e Resultados}
+% %consideraçoes e resultados
+% Resultados e considerações do trabalho  
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \section{Referencias}
+% \begin{frame}{Referencias}
+%   Suas referencias bibliográficas aqui, siga o modelo ABNT.
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \section{Agradecimentos}
+% \begin{frame}{Agradecimentos}
+% Agradeço a todos que colaboraram  para realizaç~ao deste projeto.
+% Agradeço ao Alexandre Bencz pelo assembly de cada dia.
+% Agradeço ao Sonata Arctica, Avantasia, Mago de Oz, Cain's Offering, e todas as outras bandas de Power Metal. 	
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% %------------------------------------------------------------------------------
+% \subsection{Sites legais}
+% \begin{frame}{Sites legais}
+%   Want to know more? See!
+%   \begin{itemize}
+%     \item Browse in my page \url{http://www.ezefranca.com}.
+%     \item Browse on BCC page \url{http://www.sp.sustech.br/bcc}.
+%     \item Thanks WriteLaTeX from Support! \url{http://www.writelatex.com}.
+%   \end{itemize}
+  
+% \end{frame}
+% %------------------------------------------------------------------------------
+
+% -----------------------------------------------------------------------------
+\end{document}
+%-----------------------------------------------Este comentario nunca aparecera
