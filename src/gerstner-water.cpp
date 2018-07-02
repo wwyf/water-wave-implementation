@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -12,6 +12,10 @@
 #include <math.h>
 #include <string>
 #include "util.h"
+#include <stdlib.h>
+#include <limits.h>
+
+#define MATH_PI 3.1415926
 
 #define SCREEN_WIDTH	800
 #define SCREEN_HEIGHT	600
@@ -32,24 +36,29 @@
 
 std::string fs_filename = "../src/gerstner-water-fs.glsl";
 std::string vs_filename = "../src/gerstner-water-vs.glsl";
+#define STEEPNESS 0.8 //TODO: 不知道这个值好不好
+
+//std::string fs_filename = "gerstner-water-fs.glsl";
+//std::string vs_filename = "gerstner-water-vs.glsl";
 std::string diff_texture = "../resource/water-texture-2.tga";
 std::string norm_texture = "../resource/water-texture-2-normal.tga";
 
 int frame_count = 0;
 
 static GLfloat pt_strip[STRIP_COUNT*STRIP_LENGTH*3] = {0};
+static GLfloat pt_grid[STRIP_COUNT * STRIP_LENGTH*3] = {};
 static GLfloat pt_normal[STRIP_COUNT*STRIP_LENGTH*3] = {0};
 static GLfloat vertex_data[DATA_LENGTH*3] = {0};
 static GLfloat normal_data[DATA_LENGTH*3] = {0};
 
-//wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
+//wave_length(L, w=2/L), wave_height(A), wave_dir(theta), wave_speed(phi), wave_start.x, wave_start.y
 static const GLfloat wave_para[6][6] = {
-	{	1.6,	0.12,	0.9,	0.06,	0.0,	0.0	},
-	{	1.3,	0.1,	1.14,	0.09,	0.0,	0.0	},
-	{	0.2,	0.01,	0.8,	0.08,	0.0,	0.0	},
-	{	0.18,	0.008,	1.05,	0.1,	0.0,	0.0	},
-	{	0.23,	0.005,	1.15,	0.09,	0.0,	0.0	},
-	{	0.12,	0.003,	0.97,	0.14,	0.0,	0.0	}
+	{	1.6,	0.04,	0.9,	0.3,	0.0,	0.0	},
+	{	1.3,	0.04,	1.20,	1.1,	0.0,	0.0	},
+	{	0.1,	0.005,	0.8,	0.8,	0.0,	0.0	},
+	{	0.18,	0.0004,	1.05,	1,	0.0,	0.0	},
+	{	0.23,	0.002,	1.0,	0.9,	0.0,	0.0	},
+	{	0.12,	0.0001,	0.97,	1.4,	0.0,	0.0	}
 };
 
 static const GLfloat gerstner_pt_a[22] = {
@@ -100,6 +109,7 @@ static float gerstnerZ(float, float, float, const GLfloat *);
 static int normalizeF(float *, float *, int);
 static void calcuWave(void);
 static void initGL(void);
+void resetGrid(); // 用于重设xz构成的网格面。
 
 int main(int argc, char* argv[])
 {
@@ -300,6 +310,12 @@ static void initWave(void)
 		{
 			pt_strip[index] = START_X + i*LENGTH_X;
 			pt_strip[index+1] = START_Y + j*LENGTH_Y;
+			pt_strip[index + 2] = START_Z;
+
+			pt_grid[index] = START_X + i * LENGTH_X;
+			pt_grid[index + 1] = START_Y + j * LENGTH_Y;
+			pt_strip[index + 2] = START_Z;
+
 			index += 3;
 		}
 	}
@@ -368,13 +384,51 @@ static void calcuWave(void)
 		for(int j=0; j<STRIP_LENGTH; j++)
 		{
 			wave = 0.0;
+
+			double x_pos = pt_grid[index];
+			double y_pos = pt_grid[index + 1];
+			pt_strip[index] = x_pos; // x 
+			pt_strip[index + 1] = y_pos; // y
 			for(int w=0; w<WAVE_COUNT; w++){
-				d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
-				if(gerstner_sort[w] == 1){
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
-				}else{
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				d = (x_pos - values.wave_start[w*2] + (y_pos - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
+				/**
+				 * TODO: 修改1：
+				 * 原实现：疯狂硬编码。gerstner_sort用来决定，选择波A还是波B（硬编码）
+				 * gerstnerZ从硬编码的波中插值。
+				 * 
+				 * 现实现:通过计算的方式得到
+				 * x += (sigma) Q * A * D.x * cos(omg * d + fi * value.time)
+				 * 
+				 * z += (sigma) A * sin(wi * D * (x, y) + py * t))
+				 */
+				
+				// if(gerstner_sort[w] == 1){
+				// 	wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
+				// }else{
+				// 	wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				// }
+				//TODO: 下面这条正确吗？
+				double theta = values.wave_dir[w];
+				double phi = values.wave_speed[w];
+				double A = values.wave_height[w];
+				double L = values.wave_length[w];
+				double current_time = values.time;
+
+				double omg = 2 * MATH_PI / L; //TODO: 这个正确吗？ 有 pi ? 
+				double Qi = STEEPNESS / (omg * A * WAVE_COUNT);
+				// double Qi = 0;
+
+
+				//printf("%lf\n", (1.0 * rand() / INT_MAX));
+				if (A <= 0.002) {
+					double threshold = 1.0 * rand() / INT_MAX;
+					if (threshold <= 0.8) {
+						A = 0;
+					}
 				}
+				wave += A * sin(omg * d + current_time * phi);
+				pt_strip[index] +=  Qi * A * cos(theta) * cos(omg * d + phi * current_time);
+				pt_strip[index + 1] += Qi * A * sin(theta) * cos(omg * d + phi * current_time);
 			}
 			pt_strip[index+2] = START_Z + wave*HEIGHT_SCALE;
 			index += 3;
