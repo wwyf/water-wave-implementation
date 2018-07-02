@@ -16,12 +16,13 @@
 class Packet{
 public:
     Packet();
-    Packet(int x, int y, int force);
+    Packet(int x, int y, double force);
     void update_packet();
     float get_x_y_height(int x, int y);
 private:
     float point_height[STRIP_COUNT+1][STRIP_LENGTH+1];
-    int energy;
+    double energy;
+    double start_time;
     double last_time;
     int x;
     int y;
@@ -37,7 +38,7 @@ public:
     void clear_height();
 
     /* x, y 指水面的x,y坐标（在水面正上方看下去）， force：波包的力度，0-100 */
-    void add_packet(int x, int y, int force);
+    void add_packet(int x, int y, double force);
     /* 每一个时刻都需要更新波包的状态 */
     void update_all_packet();
     /* 计算波包高度的总和 */

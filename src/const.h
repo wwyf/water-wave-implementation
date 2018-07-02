@@ -20,10 +20,9 @@
 #define MAX_PACKET_NUM 100
 #define MAX_PACKET_FORCE 100
 
-#define DELAY_TO_R 0.01
-#define DELAY_TO_E 0.01
-#define ENERGY_TO_A 0.1
-#define R_TO_L 0.1
+#define DELAY_TO_R 1
+#define DELAY_TO_E 0.05
+#define DIS_TO_COORDINATE 50
 #define PI 3.1415926535
 
 #endif // !_CONST_H_
