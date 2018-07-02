@@ -558,7 +558,23 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 100000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
-				my_packet_pool.add_packet(10,10,50);
+				my_packet_pool.add_packet(40,20,50);
+            }
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
+        for (int i = 0; i < 100000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
+				my_packet_pool.add_packet(35,15,50);
+            }
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS){
+        for (int i = 0; i < 100000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS){
+				my_packet_pool.add_packet(55,25,50);
             }
         }
     }

@@ -13,8 +13,30 @@ Packet::Packet(int x, int y, int force){
 }
 
 void Packet::update_packet(){
-    delay += glfwGetTime() - last_time;
-    last_time = glfwGetTime();
+
+    // /*******************************************
+    // 一种波的渲染方式
+    for (int i = 0; i < STRIP_COUNT; i++){
+        for (int j = 0; j < STRIP_LENGTH; j++){
+            float packet_range = 5;
+            float d = sqrt(pow(i-x, 2) + pow(j-y, 2));
+            //  当d==r的时候取得最大值，自变量是d 
+            if ( d > packet_range){
+                point_height[i][j] = 0;
+            }
+            else {
+                point_height[i][j] = 0.2 * sin(PI * d/packet_range);
+            }
+            // printf("%f\n", point_height[i][j]);
+        }
+    }
+    // *******************************************/
+
+   //具备能量衰减的渲染方式
+
+
+    // delay += glfwGetTime() - last_time;
+    // last_time = glfwGetTime();
 
     // printf("%d", delay);
 
@@ -28,14 +50,7 @@ void Packet::update_packet(){
     // }
 
     // (energy, r, l)
-    for (int i = 0; i < STRIP_COUNT; i++){
-        for (int j = 0; j < STRIP_LENGTH; j++){
-            float d = sqrt(pow(i-x, 2) + pow(j-y, 2));
-            /* 当d==r的时候取得最大值，自变量是d */
-            point_height[i][j] = 0.1 * sin(d/40 * 2/PI);
-            // printf("%f\n", point_height[i][j]);
-        }
-    }
+
 }
 
 float Packet::get_x_y_height(int x, int y){
