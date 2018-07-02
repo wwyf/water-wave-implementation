@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <vector>
 #include <stdlib.h>
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <math.h>

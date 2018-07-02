@@ -10,6 +10,7 @@ STD_FLAGS=-std=c++11
 # SHADER=../common/build/shader.o
 EXEC=gerstner-water
 UTIL=util
+PACKET=packet
 all: $(EXEC).out 
 
 # run_obj:
@@ -25,7 +26,10 @@ ${EXEC}.o: ${EXEC}.cpp
 	g++ -c $< -I ${ROOT} ${LINK} $(STD_FLAGS) -o $@
 $(UTIL).o: $(UTIL).cpp
 	g++ -c $< -I $(ROOT) $(LINK) $(STD_FLAGS) -o $@
-${EXEC}.out: ${EXEC}.o $(UTIL).o
+$(PACKET).o: $(PACKET).cpp
+	g++ -c $< -I $(ROOT) $(LINK) $(STD_FLAGS) -o $@
+
+${EXEC}.out: ${EXEC}.o $(UTIL).o $(PACKET).o
 	g++ ${CC_FLAGS} -o $@ $^ -I {ROOT} ${LINK} ${GLFW_LINK} $(STD_FLAGS)
 
 
