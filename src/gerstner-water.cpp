@@ -639,4 +639,37 @@ void processInput(GLFWwindow *window){
             }
         }
     }
+
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS){
+        for (int i = 0; i < 10000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS){
+				my_packet_pool.add_packet(35,15,0.05, 2);
+            }
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
+        for (int i = 0; i < 10000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
+				my_packet_pool.add_packet(45,15,0.05, 2);
+            }
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS){
+        for (int i = 0; i < 10000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS){
+				my_packet_pool.add_packet(35,30,0.05, 2);
+            }
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS){
+        for (int i = 0; i < 10000000; i++);
+        {
+            if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS){
+				my_packet_pool.add_packet(45,30,0.05, 2);
+            }
+        }
+    }
 }
