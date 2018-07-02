@@ -7,7 +7,7 @@ void *file_contents(const char *filename, GLint *length)
 {
     FILE *f;
 	void *buffer;
-	fopen_s(&f, filename, "r");
+	f = fopen(filename, "r");
 
     if (!f) {
         fprintf(stderr, "Unable to open %s for reading\n", filename);
@@ -52,7 +52,7 @@ void *read_tga(const char *filename, int *width, int *height)
     size_t read;
     void *pixels;
 
-    fopen_s(&f, filename, "rb");
+    f = fopen(filename, "rb");
 
     if (!f) {
         fprintf(stderr, "Unable to open %s for reading\n", filename);
