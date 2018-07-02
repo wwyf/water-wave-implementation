@@ -19,9 +19,12 @@ public:
     Packet(int x, int y, double force);
     void update_packet();
     float get_x_y_height(int x, int y);
+    /* 看这个波包能量是不是0 */
+    int is_zero();
 private:
     float point_height[STRIP_COUNT+1][STRIP_LENGTH+1];
     double energy;
+    double cur_energy;
     double start_time;
     double last_time;
     int x;

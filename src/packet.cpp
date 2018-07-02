@@ -30,6 +30,7 @@ Packet::Packet(){}
 Packet::Packet(int x, int y, double force){
     start_time = glfwGetTime();
     last_time = glfwGetTime();
+    cur_energy = force;
     energy = force;
     printf("this->energy:%f\n", this->energy);
     delay = 0;
@@ -72,7 +73,7 @@ void Packet::update_packet(){
     double cur_r = 0.3 - 0.3 * decrease_function(delay,max_delay); 
     double e_fraction = decrease_function(delay, max_delay);
 
-    double cur_energy = this->energy * e_fraction;
+    cur_energy = this->energy * e_fraction;
 
     printf("energy:%f\n", energy);
     printf("delay:%f\n", delay);
@@ -99,6 +100,12 @@ float Packet::get_x_y_height(int x, int y){
     // printf("point_height:%f\n", point_height[x][y]);
     return point_height[x][y];
 }
+
+int Packet::is_zero(){
+    return cur_energy == 0;
+}
+
+
 
 PacketManager::PacketManager(){
     clear_height();
