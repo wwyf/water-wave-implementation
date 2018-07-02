@@ -155,7 +155,7 @@ void PacketManager::calculate_all_packet_height(){
 void PacketManager::update_data(){
     update_all_packet();
     calculate_all_packet_height();
-    printf("1packet number: %d\n", my_packet.size());
+    printf("1packet number: %lu\n", my_packet.size());
     printf("2packet number: %d\n", packet_num);
 }
 /* 得到波包总和中，(x,y)对应的波包的高度 */
