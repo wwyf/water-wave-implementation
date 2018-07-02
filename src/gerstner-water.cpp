@@ -434,7 +434,7 @@ static void calcuWave(void)
 					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
 				}
 			}
-			printf("wave:%f\n" ,wave);
+			// printf("wave:%f\n" ,wave);
 			float www = my_packet_pool.get_x_y_height(i, j);
 			// printf("www:%f\n" ,www);
 			wave += www;
@@ -558,7 +558,7 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 100000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
-				my_packet_pool.add_packet(20,30,50);
+				my_packet_pool.add_packet(10,10,50);
             }
         }
     }

@@ -7,6 +7,8 @@ Packet::Packet(int x, int y, int force){
     last_time = glfwGetTime();
     energy = force;
     delay = 0;
+    this->x = x;
+    this->y = y;
     update_packet();
 }
 
@@ -26,9 +28,9 @@ void Packet::update_packet(){
     // }
 
     // (energy, r, l)
-    for (int i = 0; i < STRIP_LENGTH; i++){
+    for (int i = 0; i < STRIP_COUNT; i++){
         for (int j = 0; j < STRIP_LENGTH; j++){
-            double d = sqrt(pow(i-x, 2) + pow(j-y, 2));
+            float d = sqrt(pow(i-x, 2) + pow(j-y, 2));
             /* 当d==r的时候取得最大值，自变量是d */
             point_height[i][j] = 0.1 * sin(d/40 * 2/PI);
             // printf("%f\n", point_height[i][j]);
