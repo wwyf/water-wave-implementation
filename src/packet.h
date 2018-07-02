@@ -52,7 +52,7 @@ public:
     float get_x_y_height(int x, int y);
 private:
     float point_height[STRIP_COUNT+1][STRIP_LENGTH+1];
-    Packet my_packet[MAX_PACKET_NUM];
+    std::vector<Packet> my_packet;
     int packet_num;
 };
 

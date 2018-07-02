@@ -75,10 +75,10 @@ void Packet::update_packet(){
 
     cur_energy = this->energy * e_fraction;
 
-    printf("energy:%f\n", energy);
-    printf("delay:%f\n", delay);
-    printf("cur_r:%f\n", cur_r);
-    printf("cur_energy:%f\n", cur_energy);
+    // printf("energy:%f\n", energy);
+    // printf("delay:%f\n", delay);
+    // printf("cur_r:%f\n", cur_r);
+    // printf("cur_energy:%f\n", cur_energy);
 
     // 根据波的能量大小还有半径，计算当前波的形状
     // cur_energy, cur_r
@@ -123,13 +123,21 @@ void PacketManager::clear_height(){
 
 /* x, y 指水面的x,y坐标（在水面正上方看下去）， force：波包的力度，0-100 */
 void PacketManager::add_packet(int x, int y, double force=50){
-    my_packet[packet_num] = Packet(x, y, force);
+    my_packet.push_back(Packet(x, y, force));
     packet_num++;
 }
 /* 每一个时刻都需要更新波包的状态 */
 void PacketManager::update_all_packet(){
-    for (int i = 0; i < packet_num; i++){
-        my_packet[i].update_packet();
+    std::vector<Packet>::iterator it;
+    for (it = my_packet.begin(); it != my_packet.end(); ){
+        if (it->is_zero()){
+            it = my_packet.erase(it);
+            packet_num--;
+        }
+        else{
+            it->update_packet();
+            it++;
+        }
     }
 }
 /* 计算波包高度的总和 */
@@ -137,11 +145,9 @@ void PacketManager::calculate_all_packet_height(){
     clear_height();
     for (int i = 0; i < STRIP_COUNT; i++){
         for (int j = 0; j < STRIP_LENGTH; j++){
-            for (int k = 0; k < packet_num; k++){
-                // printf("get_x_y_h:%f\n", my_packet[k].get_x_y_height(i, j));
-                point_height[i][j] += my_packet[k].get_x_y_height(i, j);
+            for (std::vector<Packet>::iterator it = my_packet.begin(); it != my_packet.end(); it++){
+                point_height[i][j] += it->get_x_y_height(i, j);
             }
-            // printf("point_height:%f\n", point_height[i][j]);
         }
     }
 }
@@ -149,6 +155,8 @@ void PacketManager::calculate_all_packet_height(){
 void PacketManager::update_data(){
     update_all_packet();
     calculate_all_packet_height();
+    printf("1packet number: %d\n", my_packet.size());
+    printf("2packet number: %d\n", packet_num);
 }
 /* 得到波包总和中，(x,y)对应的波包的高度 */
 float PacketManager::get_x_y_height(int x, int y){
