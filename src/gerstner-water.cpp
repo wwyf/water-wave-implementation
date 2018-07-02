@@ -12,6 +12,8 @@
 #include <math.h>
 #include <string>
 #include "util.h"
+#include <stdlib.h>
+#include <limits.h>
 
 #define MATH_PI 3.1415926
 
@@ -49,9 +51,9 @@ static GLfloat normal_data[DATA_LENGTH*3] = {0};
 
 //wave_length(L, w=2/L), wave_height(A), wave_dir(theta), wave_speed(phi), wave_start.x, wave_start.y
 static const GLfloat wave_para[6][6] = {
-	{	1.6,	0.06,	0.9,	0.3,	0.0,	0.0	},
-	{	1.3,	0.02,	1.15,	1.1,	0.0,	0.0	},
-	{	0.2,	0.005,	0.8,	0.8,	0.0,	0.0	},
+	{	1.6,	0.04,	0.9,	0.3,	0.0,	0.0	},
+	{	1.3,	0.04,	1.20,	1.1,	0.0,	0.0	},
+	{	0.1,	0.005,	0.8,	0.8,	0.0,	0.0	},
 	{	0.18,	0.0004,	1.05,	1,	0.0,	0.0	},
 	{	0.23,	0.002,	1.0,	0.9,	0.0,	0.0	},
 	{	0.12,	0.0001,	0.97,	1.4,	0.0,	0.0	}
@@ -146,7 +148,6 @@ int main(int argc, char* argv[])
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		resetGrid();
 		calcuWave();
 
 		glUniform1f(glGetUniformLocation(names.program, "time"), values.time);
@@ -318,24 +319,6 @@ static void initWave(void)
 	}
 }
 
-void resetGrid() {
-	int index=0;
-	for(int i=0; i<STRIP_COUNT; i++)
-	{
-		for(int j=0; j<STRIP_LENGTH; j++)
-		{
-			pt_strip[index] = START_X + i*LENGTH_X;
-			pt_strip[index+1] = START_Y + j*LENGTH_Y;
-			pt_strip[index + 2] = START_Z;
-
-			pt_grid[index] = START_X + i * LENGTH_X;
-			pt_grid[index + 1] = START_Y + j * LENGTH_Y;
-			pt_grid[index + 2] = START_Z;
-			index += 3;
-		}
-	}
-}
-
 static float gerstnerZ(float w_length, float w_height, float x_in, const GLfloat gerstner[22])
 {
 	x_in = x_in * 400.0 / w_length;
@@ -433,6 +416,14 @@ static void calcuWave(void)
 				double Qi = STEEPNESS / (omg * A * WAVE_COUNT);
 				// double Qi = 0;
 
+
+				//printf("%lf\n", (1.0 * rand() / INT_MAX));
+				if (A <= 0.002) {
+					double threshold = 1.0 * rand() / INT_MAX;
+					if (threshold <= 0.8) {
+						A = 0;
+					}
+				}
 				wave += A * sin(omg * d + current_time * phi);
 				pt_strip[index] +=  Qi * A * cos(theta) * cos(omg * d + phi * current_time);
 				pt_strip[index + 1] += Qi * A * sin(theta) * cos(omg * d + phi * current_time);
