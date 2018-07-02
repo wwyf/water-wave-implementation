@@ -10,6 +10,21 @@ double decrease_function(double x, double boundary){
     }
 }
 
+// 波包上的每一点的高度计算的关键函数
+// 一个二维的波，计算波包中横坐标为x对应的波的高度
+// start为波包开始的地方，end为波包结束的地方
+double wave_packet_function(double start, double end, double x, double p){
+    if (x < start){
+        return 0;
+    }
+    else if (x > end ){
+        return 0;
+    }
+    else {
+        return sin(PI * (x-start)/(end - start));
+    }
+}
+
 Packet::Packet(){}
 
 Packet::Packet(int x, int y, double force){
@@ -68,18 +83,10 @@ void Packet::update_packet(){
     // cur_energy, cur_r
     for (int i = 0; i < STRIP_COUNT; i++){
         for (int j = 0; j < STRIP_LENGTH; j++){
-            float packet_range = DIS_TO_COORDINATE * (2 * cur_r);
+            float one_range = DIS_TO_COORDINATE * (cur_r);
+            float packet_range = 2 * one_range;
             float d = sqrt(pow(i-x, 2) + pow(j-y, 2));
-            //  当d==r的时候取得最大值，自变量是d 
-            if ( d > packet_range){
-                point_height[i][j] = 0;
-            }
-            else {
-                // 计算 0 - packet_range 范围内的点的高度，其他都是0
-                // 计算的自变量是d，0-packet_range范围应该是0-XXX-0
-                point_height[i][j] = cur_energy * sin(PI * d/packet_range);
-            }
-            // printf("%f\n", point_height[i][j]);
+            point_height[i][j] = cur_energy * wave_packet_function(one_range, 3 * one_range, d, packet_range);
         }
     }
 
