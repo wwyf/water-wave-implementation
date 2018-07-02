@@ -54,6 +54,9 @@
   \tableofcontents
 \end{frame}
 %---Fim do Sumário------------------------------------------------------------
+
+\section{Introduction}
+\subsection{Preface}
 \begin{frame}[t]{\emph{HOW} to simulate?}
   \textcolor[rgb]{0.5,0.5,0.5}{Quite difficult to deal with the \textbf{\color{blue}volatile} material...}
   \begin{columns} % align columns
@@ -123,7 +126,9 @@
 \end{frame}
 
 
+\section{Implementation}
 
+\subsection{Gerstner Wave Implementation}
 
 \begin{frame}{Introduction to Gerstner Wave}
   \begin{itemize}
@@ -259,7 +264,229 @@
 \end{frame}
 
 
+\section{Continue to Implementation}
 
+\subsection{Our Implementation}
+
+
+\begin{frame}{Three ways to implementation}
+  
+water wave packet论文中提到了三种方法用来实现水面
+  
+  \begin{itemize}
+    \item 无限的波列（infinitely long wavetrains）
+    \item 单波峰（single wave crests）
+    \item 波包（packets of waves)
+  \end{itemize}
+  
+我们自己根据 Gerstner 波的相关知识，使用无限的波列渲染了简单的水面。
+  
+后来，论文的思想，进一步启发了我们使用单波峰完善了水面的渲染。
+
+最后尝试了波包在水面渲染上的应用。
+
+\end{frame}
+
+\begin{frame}{实现效果}
+
+  \begin{columns} % align columns
+    \begin{column}<0->{.5\textwidth}
+      \begin{figure}[thpb]
+        \centering
+        \resizebox{0.8\linewidth}{!}{
+        \includegraphics{figure/2018-07-03-01-41-41.png}
+        }
+        %\includegraphics[scale=1.0]{figurefile}
+        \caption{单个波浪}
+        \label{fig:wyf-show-effect-left}
+      \end{figure}
+    \end{column}%
+    \hfill%
+    \begin{column}<0->{.5\textwidth}      
+      \begin{figure}[thpb]
+        \centering
+        \resizebox{0.8\linewidth}{!}{
+          \includegraphics{figure/2018-07-03-01-51-46.png}
+          }
+          %\includegraphics[scale=1.0]{figurefile}
+          %\caption*{System components}
+          \label{fig:wyf-show-effect-right}
+          \caption{多个波浪}
+      \end{figure}
+    \end{column}%
+  \end{columns}
+
+\end{frame}
+
+
+\subsection{single wave crests}
+
+\begin{frame}
+
+我们使用单波峰实现了对水面扰动的仿真，具体实现特性有以下几点：
+
+\begin{itemize}
+  \item 按一次键盘->扰动->波浪
+  \item 扰动强弱的控制
+  \item 水面扰动能量的衰减
+  \item 多个扰动间的叠加
+\end{itemize}
+
+
+\begin{columns} % align columns
+  \begin{column}<0->{.5\textwidth}
+    \begin{figure}[thpb]
+      \centering
+      \resizebox{0.7\linewidth}{!}{
+      \includegraphics{figure/2018-07-03-01-59-35.png}
+      }
+      %\includegraphics[scale=1.0]{figurefile}
+      \caption{单个扰动刚出现}
+      \label{fig:wyf-single-left}
+    \end{figure}
+  \end{column}%
+  \hfill%
+  \begin{column}<0->{.5\textwidth}      
+    \begin{figure}[thpb]
+      \centering
+      \resizebox{0.7\linewidth}{!}{
+        \includegraphics{figure/2018-07-03-01-59-47.png}
+        }
+        %\includegraphics[scale=1.0]{figurefile}
+        %\caption*{System components}
+        \label{fig:wyf-single-right}
+        \caption{扰动接近消失}
+    \end{figure}
+  \end{column}%
+\end{columns}
+
+
+\end{frame}
+
+
+\begin{frame}{大致实现思路}
+  
+将波独立成波峰或者波包来实现
+
+\begin{itemize}
+  \item 对波的控制更为细致
+  \item 易于实现能量衰减
+  \item 不同波之间的相互影响有着成熟的理论体系
+\end{itemize}
+
+使用波包来对水面进行模拟，能够基于物理知识，渲染出更加真实且效果更佳丰富的水面。
+% \\
+
+在进一步的实现中，我们仅使用了单波峰来完善我们的水面的渲染。
+
+  
+\end{frame}
+
+\begin{frame}{具体实现思路}
+
+\begin{itemize}
+  \item 实现了两个类
+  \begin{itemize}
+    \item Packet类
+    \item PacketManager类
+  \end{itemize}
+\end{itemize}
+
+
+\begin{columns} % align columns
+  \begin{column}<0->{.5\textwidth}
+    Packet类
+    \begin{itemize}
+      \item 存有该波峰的能量，波长，振幅，起始坐标等
+      \item 存放于PacketManager类中的vector容器中
+      \item 用户不直接使用Packet
+    \end{itemize}
+  \end{column}%
+  \hfill%
+  \begin{column}<0->{.5\textwidth}      
+    PacketManager类
+    \begin{itemize}
+      \item 管理该水面具有的Packet
+      \item 增加新的Packet
+      \item 遍历vector容器，更新当前水面信息
+      \item 检测到波峰能量为0时，将该波峰从容器中删除
+    \end{itemize}
+  \end{column}%
+\end{columns}
+  
+\end{frame}
+
+\begin{frame}{波高信息的更新}
+
+在每一帧，程序的主渲染循环都会调用PacketManager的\texttt{update\_data}接口。\\
+
+正是这关键的操作，实现了波峰的移动及消失
+
+\begin{figure}[thpb]
+  \centering
+  \resizebox{0.7\linewidth}{!}{
+    \includegraphics{figure/figure/2018-07-03-01-59-47.png.png}
+    }
+    %\includegraphics[scale=1.0]{figurefile}
+    %\caption*{System components}
+    \label{fig:wyf-code}
+    \caption{一处关键代码}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{不足与优点}
+  
+在我们的实现中，我们认为有如下优点。
+
+\begin{itemize}
+  \item 不使用波序列，而使用单个的波峰进行模拟
+  \item 能量衰减实现效果自然
+\end{itemize}
+    
+不过，仍有以下不足。
+
+\begin{itemize}
+  \item 物理背景缺乏，较难实现与刚体碰撞后波的进一步反弹与传播
+  \item 单波峰扰动效果一般，波峰过于圆润，不够真实
+\end{itemize}
+
+    
+\end{frame}
+
+
+
+% -----------------------------------------------------------------------------
+\section{A fun demo}
+\subsection{A fun demo}
+\begin{frame}{Demo}
+  \centering
+  \Huge \textbf{\textcolor[rgb]{0,0,1}{Now is the demo time!}}
+\end{frame}
+
+\begin{frame}{Group member}
+ \large
+  \begin{center}
+    \begin{tabular}{cc}%
+    李新锐\ 15323032&孙一言\ 16337216\\
+    王锦鹏\ 16337232&王永锋\ 16337237\\
+    颜彬\ 16337269&韦博耀\ 16337242
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Thank you}
+  \begin{center}
+    \Huge Thank you for listening!
+  \end{center}
+\end{frame}
+
+
+
+% \subsection{packet wave}
+
+
+% \subsection{Conclusion}
 
 % % -----------------------------------------------------------------------------
 % \section{Introducão}

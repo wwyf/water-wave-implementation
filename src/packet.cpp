@@ -181,3 +181,20 @@ void PacketManager::update_data(){
 float PacketManager::get_x_y_height(int x, int y){
     return point_height[x][y];
 }
+
+
+    delay = glfwGetTime() - start_time;
+    last_time = glfwGetTime();
+    double max_delay = 5;
+    double cur_r = 0.3 - 0.3 * decrease_function(delay,max_delay); 
+    double e_fraction = decrease_function(delay, max_delay);
+    cur_energy = this->energy * e_fraction;
+    // 根据波的能量大小还有半径，计算当前波的形状
+    for (int i = 0; i < STRIP_COUNT; i++){
+        for (int j = 0; j < STRIP_LENGTH; j++){
+            float one_range = DIS_TO_COORDINATE * (cur_r);
+            float packet_range = 2 * one_range;
+            float d = sqrt(pow(i-x, 2) + pow(j-y, 2));
+            point_height[i][j] = cur_energy * wave_packet_function(one_range, 3 * one_range, d, packet_range);
+        }
+    }
