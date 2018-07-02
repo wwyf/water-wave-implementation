@@ -13,6 +13,8 @@
 #include <string>
 #include "util.h"
 
+#define MATH_PI 3.1415926
+
 #define SCREEN_WIDTH	800
 #define SCREEN_HEIGHT	600
 
@@ -30,6 +32,8 @@
 #define STRIP_LENGTH	50
 #define DATA_LENGTH		STRIP_LENGTH*2*(STRIP_COUNT-1)
 
+#define STEEPNESS 0.3 //TODO: 不知道这个值好不好
+
 std::string fs_filename = "gerstner-water-fs.glsl";
 std::string vs_filename = "gerstner-water-vs.glsl";
 std::string diff_texture = "../resource/water-texture-2.tga";
@@ -42,14 +46,14 @@ static GLfloat pt_normal[STRIP_COUNT*STRIP_LENGTH*3] = {0};
 static GLfloat vertex_data[DATA_LENGTH*3] = {0};
 static GLfloat normal_data[DATA_LENGTH*3] = {0};
 
-//wave_length, wave_height, wave_dir, wave_speed, wave_start.x, wave_start.y
+//wave_length(L, w=2/L), wave_height(A), wave_dir(theta), wave_speed(phi), wave_start.x, wave_start.y
 static const GLfloat wave_para[6][6] = {
-	{	1.6,	0.12,	0.9,	0.06,	0.0,	0.0	},
-	{	1.3,	0.1,	1.14,	0.09,	0.0,	0.0	},
-	{	0.2,	0.01,	0.8,	0.08,	0.0,	0.0	},
-	{	0.18,	0.008,	1.05,	0.1,	0.0,	0.0	},
-	{	0.23,	0.005,	1.15,	0.09,	0.0,	0.0	},
-	{	0.12,	0.003,	0.97,	0.14,	0.0,	0.0	}
+	{	1.6,	0.12,	0.9,	0.6,	0.0,	0.0	},
+	{	1.3,	0.1,	1.14,	0.9,	0.0,	0.0	},
+	{	0.2,	0.01,	0.8,	0.8,	0.0,	0.0	},
+	{	0.18,	0.008,	1.05,	1,	0.0,	0.0	},
+	{	0.23,	0.005,	1.15,	0.9,	0.0,	0.0	},
+	{	0.12,	0.003,	0.97,	1.4,	0.0,	0.0	}
 };
 
 static const GLfloat gerstner_pt_a[22] = {
@@ -100,6 +104,7 @@ static float gerstnerZ(float, float, float, const GLfloat *);
 static int normalizeF(float *, float *, int);
 static void calcuWave(void);
 static void initGL(void);
+void resetGrid(); // 用于重设xz构成的网格面。
 
 int main(int argc, char* argv[])
 {
@@ -140,6 +145,7 @@ int main(int argc, char* argv[])
     {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		resetGrid();
 		calcuWave();
 
 		glUniform1f(glGetUniformLocation(names.program, "time"), values.time);
@@ -300,6 +306,21 @@ static void initWave(void)
 		{
 			pt_strip[index] = START_X + i*LENGTH_X;
 			pt_strip[index+1] = START_Y + j*LENGTH_Y;
+			pt_strip[index + 2] = START_Z;
+			index += 3;
+		}
+	}
+}
+
+void resetGrid() {
+	int index=0;
+	for(int i=0; i<STRIP_COUNT; i++)
+	{
+		for(int j=0; j<STRIP_LENGTH; j++)
+		{
+			pt_strip[index] = START_X + i*LENGTH_X;
+			pt_strip[index+1] = START_Y + j*LENGTH_Y;
+			pt_strip[index + 2] = START_Z;
 			index += 3;
 		}
 	}
@@ -370,11 +391,35 @@ static void calcuWave(void)
 			wave = 0.0;
 			for(int w=0; w<WAVE_COUNT; w++){
 				d = (pt_strip[index] - values.wave_start[w*2] + (pt_strip[index+1] - values.wave_start[w*2+1]) * tan(values.wave_dir[w])) * cos(values.wave_dir[w]);
-				if(gerstner_sort[w] == 1){
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
-				}else{
-					wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
-				}
+				/**
+				 * TODO: 修改1：
+				 * 原实现：疯狂硬编码。gerstner_sort用来决定，选择波A还是波B（硬编码）
+				 * gerstnerZ从硬编码的波中插值。
+				 * 
+				 * 现实现:通过计算的方式得到
+				 * x += (sigma) Q * A * D.x * cos(omg * d + fi * value.time)
+				 * 
+				 * z += (sigma) A * sin(wi * D * (x, y) + py * t))
+				 */
+				
+				// if(gerstner_sort[w] == 1){
+				// 	wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_a);
+				// }else{
+				// 	wave += values.wave_height[w] - gerstnerZ(values.wave_length[w], values.wave_height[w], d + values.wave_speed[w] * values.time, gerstner_pt_b);
+				// }
+				//TODO: 下面这条正确吗？
+				//double Qi = STEEPNESS / (values.wave_speed[w] * values.wave_height[w] * WAVE_COUNT);
+				double theta = values.wave_dir[w];
+				double x_pos = pt_strip[index];
+				double y_pos = pt_strip[index];
+				double phi = values.wave_speed[w];
+				double A = values.wave_height[w];
+				double L = values.wave_length[w];
+				double current_time = values.time;
+
+				double omg = 2 * MATH_PI / L; //TODO: 这个正确吗？ 有 pi ? 
+
+				wave += A * sin(omg * d + current_time * phi);
 			}
 			pt_strip[index+2] = START_Z + wave*HEIGHT_SCALE;
 			index += 3;
