@@ -611,7 +611,7 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 10000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
-				my_packet_pool.add_packet(35,15,0.05);
+				my_packet_pool.add_packet(35,15,0.05, 1);
             }
         }
     }
@@ -619,7 +619,7 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 10000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
-				my_packet_pool.add_packet(45,15,0.05);
+				my_packet_pool.add_packet(45,15,0.05, 1);
             }
         }
     }
@@ -627,7 +627,7 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 10000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
-				my_packet_pool.add_packet(35,30,0.05);
+				my_packet_pool.add_packet(35,30,0.05, 1);
             }
         }
     }
@@ -635,7 +635,7 @@ void processInput(GLFWwindow *window){
         for (int i = 0; i < 10000000; i++);
         {
             if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
-				my_packet_pool.add_packet(45,30,0.05);
+				my_packet_pool.add_packet(45,30,0.05, 1);
             }
         }
     }

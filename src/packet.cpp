@@ -27,7 +27,7 @@ double wave_packet_function(double start, double end, double x, double p){
 
 Packet::Packet(){}
 
-Packet::Packet(int x, int y, double force){
+Packet::Packet(int x, int y, double force, int type){
     start_time = glfwGetTime();
     last_time = glfwGetTime();
     cur_energy = force;
@@ -36,6 +36,7 @@ Packet::Packet(int x, int y, double force){
     delay = 0;
     this->x = x;
     this->y = y;
+    this->type = type;
     update_packet();
 }
 
@@ -122,8 +123,8 @@ void PacketManager::clear_height(){
 }
 
 /* x, y 指水面的x,y坐标（在水面正上方看下去）， force：波包的力度，0-100 */
-void PacketManager::add_packet(int x, int y, double force=50){
-    my_packet.push_back(Packet(x, y, force));
+void PacketManager::add_packet(int x, int y, double force, int type){
+    my_packet.push_back(Packet(x, y, force, type));
     packet_num++;
 }
 /* 每一个时刻都需要更新波包的状态 */
